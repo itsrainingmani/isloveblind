@@ -5,9 +5,10 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
-    "deepface>=0.0.93",
+    "face-alignment>=1.4.1",
     "mss>=9.0.2",
     "numpy>=1.26.4",
+    "pillow>=10.4.0",
     "pyautogui>=0.9.54",
     "raylib>=5.0.0.3",
     "setuptools>=75.1.0",
