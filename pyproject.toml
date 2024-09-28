@@ -6,6 +6,7 @@ readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
     "face-alignment>=1.4.1",
+    "mediapipe>=0.10.15",
     "mss>=9.0.2",
     "numpy>=1.26.4",
     "pillow>=10.4.0",
