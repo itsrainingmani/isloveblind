@@ -1,0 +1,15 @@
+[project]
+name = "isloveblind"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "deepface>=0.0.93",
+    "mss>=9.0.2",
+    "numpy>=1.26.4",
+    "pyautogui>=0.9.54",
+    "raylib>=5.0.0.3",
+    "setuptools>=75.1.0",
+    "tf-keras>=2.17.0",
+]
