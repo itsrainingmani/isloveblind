@@ -78,6 +78,9 @@ def main():
     while not pr.window_should_close():
         screen_img, capture_width, capture_height = capture_window(window_id)
         screen_img_np = np.array(screen_img)
+
+        # screen_blur = cv2.blur(screen_img_np, (30, 30))
+
         mask = np.zeros(screen_img_np.shape[:2], dtype=np.uint8)
         preds = fa.get_landmarks_from_image(screen_img_np)
 
@@ -93,25 +96,29 @@ def main():
                 (int(landmark[0] * scale_x), int(landmark[1] * scale_y))
                 for landmark in pred
             ]
+            # Draw face Landmarks
             # for c in contours:
             #     pr.draw_circle(int(c[0] * scale_x), int(c[1] * scale_y), 2, pr.WHITE)
+
+            # Generate a Mask that covers the contour of the face using convex hull
             hull = ConvexHull(contours)
             vertex_pts = [contours[vertex] for vertex in hull.vertices]
             cv2.fillConvexPoly(mask, np.array(vertex_pts), color=(255, 0, 0))
+            # blurred_face = cv2.bitwise_and(screen_blur, screen_blur, mask=mask)
             zipapped = zip(*np.nonzero(mask))
             for pt in zipapped:
-                pr.draw_circle(int(pt[1] * scale_x), int(pt[0] * scale_y), 1, pr.WHITE)
-            # blurred = cv2.GaussianBlur(mask, (25, 25), 0)
-            # non_zero_indices = np.nonzero(blurred)
-            # for y, x in zip(*non_zero_indices):
-            #     color = blurred[y, x]
-            #     pr.draw_pixel(
-            #         int(x * scale_x),
-            #         int(y * scale_y),
-            #         pr.Color(color, color, color, 255),
-            #     )
-
-        pr.draw_fps(0, 0)
+                # [r, g, b] = blurred_face[pt[0], pt[1]][:]
+                r, g, b = 255, 0, 0
+                pr.draw_pixel(
+                    int(pt[1] * scale_x),
+                    int(pt[0] * scale_y),
+                    pr.Color(
+                        r,
+                        g,
+                        b,
+                        255,
+                    ),
+                )
         pr.end_drawing()
     pr.close_window()
 
