@@ -1,14 +1,13 @@
+from matplotlib import contour
 import numpy as np
 import mss
 import pyautogui
 import pyray as pr
 import face_alignment
-import raylib
 import torch
 from PIL import Image
 import cv2
 from scipy.spatial import ConvexHull
-import itertools
 
 fa = face_alignment.FaceAlignment(
     face_alignment.LandmarksType.TWO_D,
@@ -56,7 +55,6 @@ def main():
 
         scale_x = screen_width / capture_width
         scale_y = screen_height / capture_height
-
         pr.begin_drawing()
         pr.clear_background(pr.BLANK)
 
@@ -75,14 +73,14 @@ def main():
             vertex_pts = [contours[vertex] for vertex in hull.vertices]
             cv2.fillConvexPoly(mask, np.array(vertex_pts), color=(255, 0, 0))
             # blurred = cv2.GaussianBlur(mask, (25, 25), 0)
+            # print(blurred.shape, blurred.dtype)
             # screen_img_np = np.where(
             #     mask[:, :, None] == 255, blurred[:, :, None], screen_img_np
             # )
             zipapped = zip(mask.nonzero()[0], mask.nonzero()[1])
             for pt in zipapped:
-                pr.draw_circle(int(pt[1]), int(pt[0]), 2, pr.WHITE)
-            # for pt in mask.nonzero():
-            #     pr.draw_circle(int(pt[0]), int(pt[1]), 2, pr.WHITE)
+                pr.draw_circle(int(pt[1]), int(pt[0]), 1, pr.WHITE)
+            # pr.draw_circle(int(x), int(y), 1, pr.Color(color, color, color, 255))
             # for landmark in pred:
             #     x, y = landmark[0], landmark[1]
             #     x, y = x * scale_x, y * scale_y
@@ -97,8 +95,8 @@ def main():
         #         pr.PixelFormat.PIXELFORMAT_UNCOMPRESSED_R8G8B8,
         #     )
         # )
-        pr.begin_drawing()
-        pr.clear_background(pr.BLANK)
+        # pr.begin_drawing()
+        # pr.clear_background(pr.BLANK)
         # pr.draw_texture(texture, 0, 0, pr.WHITE)
         pr.end_drawing()
         # pr.unload_texture(texture)
