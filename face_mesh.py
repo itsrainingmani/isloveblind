@@ -1,6 +1,7 @@
 import math
 import time
 from typing import Tuple, Union
+import cv2
 import numpy as np
 import mss
 import pyautogui
@@ -17,7 +18,7 @@ VisionRunningMode = mp.tasks.vision.RunningMode
 
 options = FaceLandmarkerOptions(
     base_options=BaseOptions(model_asset_path=model_path),
-    running_mode=VisionRunningMode.VIDEO,
+    running_mode=VisionRunningMode.IMAGE,
     num_faces=4,
     min_face_detection_confidence=0.4,
     min_tracking_confidence=0.4,
@@ -51,22 +52,24 @@ def main():
         | pr.ConfigFlags.FLAG_WINDOW_RESIZABLE
         | pr.ConfigFlags.FLAG_BORDERLESS_WINDOWED_MODE
         | pr.ConfigFlags.FLAG_WINDOW_HIGHDPI
+        | pr.ConfigFlags.FLAG_VSYNC_HINT
     )
     pr.set_window_position(
         pr.get_monitor_width(0) // 2 - screen_width // 2,
         pr.get_monitor_height(0) // 2 - screen_height // 2,
     )
     pr.init_window(screen_width, screen_height, "Face Detection")
-    pr.set_target_fps(60)
     print(screen_width, screen_height)
 
     with FaceLandmarker.create_from_options(options) as landmarker:
         while not pr.window_should_close():
             screen, capture_width, capture_height = capture_screen()
-            mp_image = mp.Image(image_format=mp.ImageFormat.SRGB, data=np.array(screen))
-            face_landmarks_result = landmarker.detect_for_video(
-                mp_image, timestamp_ms=int(round(time.time() * 1000))
-            )
+            screen_np = np.array(screen)
+            frame_copy = screen_np.copy()
+            frame_copy = cv2.blur(frame_copy, (27, 27))
+            height, width, _ = screen_np.shape
+            mp_image = mp.Image(image_format=mp.ImageFormat.SRGB, data=screen_np)
+            face_landmarks_result = landmarker.detect(mp_image)
             face_landmarks_list = face_landmarks_result.face_landmarks
 
             scale_x = screen_width / capture_width
@@ -75,13 +78,28 @@ def main():
             pr.begin_drawing()
             pr.clear_background(pr.BLANK)
 
-            for faces in face_landmarks_list:
-                for landmarks in faces:
+            for face in face_landmarks_list:
+                # facial_landmarks = []
+                # for landmark in face:
+                #     x = landmark.x
+                #     y = landmark.y
+                #     x, y = normalized_to_pixel_coordinates(
+                #         x, y, screen_width, screen_height
+                #     )
+                #     facial_landmarks.append([x, y])
+                # convexhull = cv2.convexHull(np.array(facial_landmarks))
+                # mask = np.zeros((height, width), np.uint8)
+                # cv2.fillConvexPoly(mask, convexhull, (255, 0, 0))
+                # face_extracted = cv2.bitwise_and(frame_copy, frame_copy, mask=mask)
+                # for pt in zip(mask.nonzero()[0], mask.nonzero()[1]):
+                #     [r, g, b] = face_extracted[pt[1], pt[0]]
+                #     pr.draw_circle(int(pt[1]), int(pt[0]), 1, pr.Color(r, g, b, 255))
+                for landmarks in face:
                     x, y = landmarks.x, landmarks.y
                     x, y = normalized_to_pixel_coordinates(
                         x, y, screen_width, screen_height
                     )
-                    pr.draw_circle(int(x), int(y), 3, pr.WHITE)
+                    pr.draw_circle(int(x), int(y), 2, pr.WHITE)
 
             pr.end_drawing()
         pr.close_window()
