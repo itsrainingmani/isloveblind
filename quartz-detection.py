@@ -47,10 +47,6 @@ def capture_window(window_id):
     return image, width, height
 
 
-# image_np = np.frombuffer(image_data, dtype=np.uint8).reshape((height, width, 4))
-# return Image.fromarray(image_np[:, :, :3]), width, height
-
-
 def create_overlay_window(screen_width, screen_height):
     pr.set_config_flags(
         pr.ConfigFlags.FLAG_WINDOW_TRANSPARENT
@@ -82,6 +78,13 @@ def main():
         # screen_blur = cv2.blur(screen_img_np, (30, 30))
 
         mask = np.zeros(screen_img_np.shape[:2], dtype=np.uint8)
+
+        """
+        is there an optimization strategy where we simply get face bounding boxes and then
+        apply an oval blur over the face to blur it?
+
+        would this be faster than detecting landmarks?
+        """
         preds = fa.get_landmarks_from_image(screen_img_np)
 
         scale_x = screen_width / capture_width
