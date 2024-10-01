@@ -1,6 +1,8 @@
+from re import X
 import time
 import Quartz.CoreGraphics
 import Quartz.QuartzCore
+import face_alignment.detection.blazeface
 import numpy as np
 import face_alignment
 import pyautogui
@@ -10,6 +12,8 @@ import cv2
 from scipy.spatial import ConvexHull
 import Quartz
 import pyray as pr
+
+fd = face_alignment.detection.blazeface.FaceDetector(device="mps")
 
 fa = face_alignment.FaceAlignment(
     face_alignment.LandmarksType.TWO_D,
@@ -85,7 +89,8 @@ def main():
 
         would this be faster than detecting landmarks?
         """
-        preds = fa.get_landmarks_from_image(screen_img_np)
+        # preds = fa.get_landmarks_from_image(screen_img_np)
+        preds = fd.detect_from_image(screen_img_np)
 
         scale_x = screen_width / capture_width
         scale_y = screen_height / capture_height
@@ -95,33 +100,33 @@ def main():
         preds = preds if preds is not None else []
         for pred in preds:
             pred = pred if pred is not None else []
-            contours = [
-                (int(landmark[0] * scale_x), int(landmark[1] * scale_y))
-                for landmark in pred
-            ]
+            [x1, y1, x2, y2, conf] = pred
+            x1, y1, x2, y2 = (
+                int(x1),
+                int(y1),
+                int(x2),
+                int(y2),
+            )
+            # pr.draw_circle_lines(y2 - y1, x2 - x1, (x2 - x1) // 2, pr.WHITE)
+            pr.draw_rectangle(x1, y1, x2 - x1, y2 - y1, pr.WHITE)
+            # contours = [
+            #     (int(landmark[0] * scale_x), int(landmark[1] * scale_y))
+            #     for landmark in pred
+            # ]
+            # Generate a Mask that covers the contour of the face using convex hull
+            # hull = ConvexHull(contours)
+            # vertex_pts = [contours[vertex] for vertex in hull.vertices]
+            # cv2.fillConvexPoly(mask, np.array(vertex_pts), color=(255, 0, 0))
+            # # blurred_face = cv2.bitwise_and(screen_blur, screen_blur, mask=mask)
+            # zipapped = zip(*np.nonzero(mask))
+            # for pt in zipapped:
+            #     # [r, g, b] = blurred_face[pt[0], pt[1]][:]
+            #     r, g, b = 255, 0, 0
+            #     pr.draw_circle(int(pt[1] * scale_x), int(pt[0] * scale_y), 2, pr.WHITE)
             # Draw face Landmarks
             # for c in contours:
-            #     pr.draw_circle(int(c[0] * scale_x), int(c[1] * scale_y), 2, pr.WHITE)
+            #     pr.draw_circle(int(c[0] * scale_x), int(c[1] * scale_y), 3, pr.RED)
 
-            # Generate a Mask that covers the contour of the face using convex hull
-            hull = ConvexHull(contours)
-            vertex_pts = [contours[vertex] for vertex in hull.vertices]
-            cv2.fillConvexPoly(mask, np.array(vertex_pts), color=(255, 0, 0))
-            # blurred_face = cv2.bitwise_and(screen_blur, screen_blur, mask=mask)
-            zipapped = zip(*np.nonzero(mask))
-            for pt in zipapped:
-                # [r, g, b] = blurred_face[pt[0], pt[1]][:]
-                r, g, b = 255, 0, 0
-                pr.draw_pixel(
-                    int(pt[1] * scale_x),
-                    int(pt[0] * scale_y),
-                    pr.Color(
-                        r,
-                        g,
-                        b,
-                        255,
-                    ),
-                )
         pr.end_drawing()
     pr.close_window()
 
