@@ -1,4 +1,3 @@
-from matplotlib import contour
 import numpy as np
 import mss
 import pyautogui
@@ -15,6 +14,7 @@ fa = face_alignment.FaceAlignment(
     device="mps",
     dtype=torch.bfloat16,
     face_detector="blazeface",
+    face_detector_kwargs={"back_model": True},
 )
 
 
@@ -45,61 +45,37 @@ def main():
 
     while not pr.window_should_close():
         screenshot, capture_width, capture_height = capture_screen()
-
         # convert RGBA image to a PIL RGB Image
         screen_img = Image.frombytes(
             "RGB", screenshot.size, screenshot.bgra, "raw", "BGRX"
         )
         screen_img_np = np.array(screen_img)
+        screen_img_np = cv2.resize(
+            src=screen_img_np, dsize=(screen_width, screen_height)
+        )
+        screen_copy = screen_img_np.copy()
+        screen_copy = cv2.blur(screen_copy, (27, 27))
         preds = fa.get_landmarks_from_image(screen_img_np)
-
-        scale_x = screen_width / capture_width
-        scale_y = screen_height / capture_height
+        height, width, _ = screen_img_np.shape
         pr.begin_drawing()
         pr.clear_background(pr.BLANK)
 
         preds = preds if preds is not None else []
         for pred in preds:
             pred = pred if pred is not None else []
-            # landmarks = list(
-            #     itertools.chain(pred[1:17], pred[27:23:-1], pred[22:18:-1])
-            # )
-            contours = [
-                (int(landmark[0] * scale_x), int(landmark[1] * scale_y))
-                for landmark in pred
-            ]
-            mask = np.zeros(screen_img_np.shape[:2], dtype=np.uint8)
+            contours = [(int(landmark[0]), int(landmark[1])) for landmark in pred]
             hull = ConvexHull(contours)
             vertex_pts = [contours[vertex] for vertex in hull.vertices]
-            cv2.fillConvexPoly(mask, np.array(vertex_pts), color=(255, 0, 0))
-            # blurred = cv2.GaussianBlur(mask, (25, 25), 0)
-            # print(blurred.shape, blurred.dtype)
-            # screen_img_np = np.where(
-            #     mask[:, :, None] == 255, blurred[:, :, None], screen_img_np
-            # )
-            zipapped = zip(mask.nonzero()[0], mask.nonzero()[1])
-            for pt in zipapped:
-                pr.draw_circle(int(pt[1]), int(pt[0]), 1, pr.WHITE)
-            # pr.draw_circle(int(x), int(y), 1, pr.Color(color, color, color, 255))
+            mask = np.zeros((height, width), dtype=np.uint8)
+            cv2.fillConvexPoly(mask, np.array(vertex_pts), 255)
+            face_blurred = cv2.bitwise_and(screen_copy, screen_copy, mask=mask)
+            for pt in zip(mask.nonzero()[0], mask.nonzero()[1]):
+                [r, g, b] = face_blurred[pt[1], pt[0]]
+                pr.draw_circle(int(pt[1]), int(pt[0]), 1, pr.Color(r, g, b, 255))
             # for landmark in pred:
             #     x, y = landmark[0], landmark[1]
-            #     x, y = x * scale_x, y * scale_y
             #     pr.draw_circle(int(x), int(y), 2, pr.WHITE)
-
-        # texture = pr.load_texture_from_image(
-        #     pr.Image(
-        #         screen_img_np,
-        #         screen_width,
-        #         screen_height,
-        #         1,
-        #         pr.PixelFormat.PIXELFORMAT_UNCOMPRESSED_R8G8B8,
-        #     )
-        # )
-        # pr.begin_drawing()
-        # pr.clear_background(pr.BLANK)
-        # pr.draw_texture(texture, 0, 0, pr.WHITE)
         pr.end_drawing()
-        # pr.unload_texture(texture)
     pr.close_window()
 
 
