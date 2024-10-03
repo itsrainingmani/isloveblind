@@ -41,7 +41,9 @@ def main():
         preds = preds if preds is not None else []
 
         # draw_circle_on_face(preds)
-        draw_ellipse_on_face(preds)
+        # draw_ellipse_on_face(preds)
+        draw_average_color_on_face(preds, screen_img_np)
+        # draw_squiggle_effect_on_face(preds, screen_img_np, scale_x, scale_y)
         # draw_blur_on_face(preds, screen_img_np)
         # draw_landmarks(preds, scale_x, scale_y)
         # blank_within_contour(preds, screen_img_np, scale_x, scale_y)

@@ -1,17 +1,13 @@
+from os import path
 import time
 import cv2
 import pyautogui
 import pyray as pr
 import mediapipe as mp
 
-from windows import (
-    capture_window,
-    create_overlay_window,
-    get_window_id,
-    normalized_to_pixel_coordinates,
-)
+from windows import *
 
-model_path = "face_landmarker.task"
+model_path = path.join("model", "face_landmarker.task")
 
 BaseOptions = mp.tasks.BaseOptions
 FaceLandmarker = mp.tasks.vision.FaceLandmarker
