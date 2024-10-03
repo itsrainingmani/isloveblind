@@ -1,12 +1,7 @@
-import math
 import time
-from typing import Tuple, Union
 import cv2
-import numpy as np
-import mss
 import pyautogui
 import pyray as pr
-from PIL import Image
 import mediapipe as mp
 
 from windows import (
@@ -68,10 +63,12 @@ def main():
                 #     pr.draw_circle(int(pt[1]), int(pt[0]), 1, pr.Color(r, g, b, 255))
                 for landmarks in face:
                     x, y = landmarks.x, landmarks.y
-                    x, y = normalized_to_pixel_coordinates(
+                    normed = normalized_to_pixel_coordinates(
                         x, y, screen_width, screen_height
                     )
-                    pr.draw_circle(int(x * scale_x), int(y * scale_y), 2, pr.WHITE)
+                    if normed is not None:
+                        x, y = normed
+                        pr.draw_circle(int(x * scale_x), int(y * scale_y), 2, pr.WHITE)
 
             pr.end_drawing()
         pr.close_window()

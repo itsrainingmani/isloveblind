@@ -1,3 +1,5 @@
+#  type: ignore
+
 import math
 from typing import Tuple, Union
 import Quartz.CoreGraphics

@@ -67,7 +67,7 @@ def main():
             hull = ConvexHull(contours)
             vertex_pts = [contours[vertex] for vertex in hull.vertices]
             mask = np.zeros((height, width), dtype=np.uint8)
-            cv2.fillConvexPoly(mask, np.array(vertex_pts), 255)
+            cv2.fillConvexPoly(mask, np.array(vertex_pts), (255, 0, 0))
             face_blurred = cv2.bitwise_and(screen_copy, screen_copy, mask=mask)
             for pt in zip(mask.nonzero()[0], mask.nonzero()[1]):
                 [r, g, b] = face_blurred[pt[1], pt[0]]

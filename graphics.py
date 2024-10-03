@@ -11,7 +11,7 @@ from scipy.spatial import ConvexHull
 # (x1, y1) - top left corner, (x2, y2) - bottom right corner
 
 
-def draw_circle_on_face(preds, screen_img_np, color=pr.WHITE):
+def draw_circle_on_face(preds, color=pr.WHITE):
     for pred in preds:
         pred = pred if pred is not None else []
         [x1, y1, x2, y2, conf] = pred
@@ -33,7 +33,7 @@ def draw_circle_on_face(preds, screen_img_np, color=pr.WHITE):
             )
 
 
-def draw_ellipse_on_face(preds, screen_img_np, color=pr.WHITE):
+def draw_ellipse_on_face(preds, color=pr.WHITE):
     for pred in preds:
         pred = pred if pred is not None else []
         [x1, y1, x2, y2, conf] = pred
@@ -48,14 +48,8 @@ def draw_ellipse_on_face(preds, screen_img_np, color=pr.WHITE):
         [center_x, center_y] = (int((x1 + x2) / 2), int((y1 + y2) / 2))
         radius = math.sqrt(w**2 + h**2) / 2
         if conf > 0.5:
-            # pr.draw_circle(
-            #     center_x,
-            #     center_y,
-            #     radius,
-            #     color,
-            # )
             # the vertical should be roughly 15% larger than the horizontal axis
-            pr.draw_ellipse(center_x, center_y, radius, radius * 1.15, color)
+            pr.draw_ellipse(center_x, center_y, radius * 0.95, radius * 1.16, color)
 
 
 def draw_blur_on_face(preds, screen_img_np):
