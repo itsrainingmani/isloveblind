@@ -1,6 +1,5 @@
 import math
 import cv2
-from matplotlib import scale
 import pyray as pr
 from windows import *
 from scipy.spatial import ConvexHull
@@ -25,7 +24,7 @@ def draw_circle_on_face(preds, color=pr.WHITE):
         w = x2 - x1 + 5
         h = y2 - y1 + 5
         center_of_rect = (int((x1 + x2) / 2), int((y1 + y2) / 2))
-        if conf > 0.5:
+        if conf > 0.7:
             pr.draw_circle(
                 center_of_rect[0],
                 center_of_rect[1],
@@ -48,7 +47,7 @@ def draw_ellipse_on_face(preds, color=pr.WHITE):
         h = y2 - y1 + 5
         [center_x, center_y] = (int((x1 + x2) / 2), int((y1 + y2) / 2))
         radius = math.sqrt(w**2 + h**2) / 2
-        if conf > 0.5:
+        if conf > 0.7:
             # the vertical should be roughly 15% larger than the horizontal axis
             pr.draw_ellipse(center_x, center_y, radius * 0.95, radius * 1.16, color)
 
@@ -63,7 +62,7 @@ def draw_average_color_on_face(preds, screen_img_np):
             int(x2),
             int(y2),
         )
-        if conf > 0.5:
+        if conf > 0.7:
             # Define the center and axes of the ellipse
             center_x = (x1 + x2) // 2
             center_y = (y1 + y2) // 2
@@ -114,7 +113,7 @@ def draw_squiggle_effect_on_face(preds, screen_img_np, scale_x, scale_y):
             int(x2),
             int(y2),
         )
-        if conf > 0.5:
+        if conf > 0.7:
             # Define the center and axes of the ellipse
             center_x = (x1 + x2) // 2
             center_y = (y1 + y2) // 2
